@@ -84,7 +84,7 @@ include "includes/header.php";
                                         <?php if ($a["id"] != $_SESSION["id"]): ?>
                                             <a href="ver_admins.php?id=<?= $a["id"] ?>&confirmar=1"
                                                 class="btn-action btn-delete" title="Eliminar"
-                                                onclick="return confirm('¿Seguro que deseas eliminar este administrador?');">
+                                                onclick="event.preventDefault();showConfirm('¿Seguro que deseas eliminar este administrador?',()=>window.location.href=this.href);">
                                                 <i class="bi bi-trash"></i>
                                             </a>
                                         <?php endif; ?>

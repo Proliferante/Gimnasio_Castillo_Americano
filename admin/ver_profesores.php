@@ -78,7 +78,7 @@ include "includes/header.php";
                                         </a>
                                         <a href="ver_profesores.php?id=<?= $p["id"] ?>&confirmar=1"
                                             class="btn-action btn-delete" title="Eliminar"
-                                            onclick="return confirm('¿Seguro que deseas eliminar este profesor?');">
+                                            onclick="event.preventDefault();showConfirm('¿Seguro que deseas eliminar este profesor?',()=>window.location.href=this.href);">
                                             <i class="bi bi-trash"></i>
                                         </a>
                                     </td>

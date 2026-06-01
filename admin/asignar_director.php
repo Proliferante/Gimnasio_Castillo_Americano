@@ -155,14 +155,15 @@ include "includes/header.php";
 
     <script>
         function eliminarDirector(profesorId, cursoId) {
-            if (!confirm('¿Eliminar esta asignación de director de grupo?')) return;
-            const fd = new FormData();
-            fd.append('action', 'eliminar');
-            fd.append('profesor_id', profesorId);
-            fd.append('curso_id', cursoId);
-            fetch('asignar_director.php', { method: 'POST', body: fd })
-                .then(r => r.text())
-                .then(res => { if (res === 'ok') location.reload(); });
+            showConfirm('¿Eliminar esta asignación de director de grupo?', function() {
+                const fd = new FormData();
+                fd.append('action', 'eliminar');
+                fd.append('profesor_id', profesorId);
+                fd.append('curso_id', cursoId);
+                fetch('asignar_director.php', { method: 'POST', body: fd })
+                    .then(r => r.text())
+                    .then(res => { if (res === 'ok') location.reload(); });
+            });
         }
     </script>
 

@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title><?php echo $pageTitle; ?> | Padres · GCA</title>
+    <meta name="theme-color" content="#0f1117">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="../manifest.json">
+    <title><?= $pageTitle ?> · Padres · GCA</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --gold: #d4af37;
@@ -36,6 +36,8 @@
             --form-bg: #fff;
             --alert-bg: #fef2f2;
             --alert-color: #b91c1c;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,.04);
+            --shadow-md: 0 4px 16px rgba(0,0,0,.06);
         }
 
         body.dark-mode {
@@ -55,9 +57,10 @@
             --form-bg: #1a1d27;
             --alert-bg: rgba(220,38,38,.12);
             --alert-color: #f87171;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,.2);
+            --shadow-md: 0 4px 16px rgba(0,0,0,.3);
+            color-scheme: dark;
         }
-
-        body { transition: background .25s, color .25s; }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -67,26 +70,43 @@
             color: var(--text-primary);
             padding: 0;
             margin: 0;
+            padding-top: 64px;
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            -webkit-font-smoothing: antialiased;
+            transition: background .35s ease, color .35s ease;
         }
 
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.25); border-radius: 2px; }
+        ::-webkit-scrollbar-thumb { background: rgba(212,175,55,.25); border-radius: 2px; }
 
-        /* ── Fixed top bar (app-style) ── */
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from { transform: translateY(12px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
         .app-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
             background: var(--bg-dark);
             border-bottom: 2px solid var(--gold);
             padding: 0 16px;
+            padding-top: env(safe-area-inset-top, 0px);
             height: 64px;
             display: flex;
-            align-items: center;
+            align-items: flex-end;
             justify-content: space-between;
+            padding-bottom: 10px;
+            animation: slideDown .3s ease;
         }
 
         .app-header-brand {
@@ -97,7 +117,7 @@
         }
 
         .app-header-brand img {
-            height: 36px;
+            height: 32px;
             filter: brightness(1.1);
         }
 
@@ -112,27 +132,33 @@
         .app-header-brand small {
             display: block;
             color: rgba(255,255,255,0.4);
-            font-size: 9px;
+            font-size: 8px;
             letter-spacing: 2px;
             text-transform: uppercase;
             font-family: 'Outfit', sans-serif;
             font-weight: 500;
         }
 
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
         .btn-header {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
-            padding: 8px 14px;
+            width: 36px;
+            height: 36px;
             border: 1px solid rgba(212,175,55,0.2);
-            border-radius: var(--radius-sm);
+            border-radius: 50%;
             color: var(--gold);
-            font-size: 13px;
-            font-weight: 500;
+            font-size: 15px;
             text-decoration: none;
             transition: all .2s;
             background: transparent;
-            font-family: 'Outfit', sans-serif;
         }
 
         .btn-header:hover {
@@ -141,35 +167,36 @@
             color: var(--gold-light);
         }
 
-        /* ── Main content ── */
+        .btn-header.logout {
+            width: auto;
+            border-radius: 50px;
+            padding: 0 14px;
+            font-size: 12px;
+            font-weight: 500;
+            gap: 4px;
+        }
+        .btn-header.logout i { font-size: 14px; }
+
         .app-content {
             max-width: 600px;
             margin: 0 auto;
             padding: 20px 16px;
+            animation: fadeInUp .4s ease;
         }
 
-        /* ── Cards ── */
         .app-card {
             background: var(--surface);
             border-radius: var(--radius);
             border: 1px solid var(--border);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            transition: transform .2s, box-shadow .2s;
+            box-shadow: var(--shadow-sm);
+            transition: transform .2s, box-shadow .2s, border-color .25s;
         }
 
-        .app-card:active {
-            transform: scale(0.98);
-        }
+        .app-card:active { transform: scale(.98); }
 
-        .app-card-header {
-            padding: 18px 20px 0;
-        }
+        .app-card-header { padding: 18px 20px 0; }
+        .app-card-body { padding: 16px 20px 20px; }
 
-        .app-card-body {
-            padding: 16px 20px 20px;
-        }
-
-        /* ── Student card ── */
         .student-card {
             display: flex;
             align-items: center;
@@ -179,222 +206,161 @@
             border-radius: var(--radius);
             border: 1px solid var(--border);
             text-decoration: none;
-            transition: all .2s;
+            transition: all .25s cubic-bezier(.4,0,.2,1);
             cursor: pointer;
         }
 
         .student-card:hover {
             border-color: var(--gold);
-            box-shadow: 0 4px 16px rgba(212,175,55,0.10);
+            box-shadow: 0 4px 20px rgba(212,175,55,0.12);
+            transform: translateY(-1px);
         }
 
-        .student-card:active {
-            transform: scale(0.97);
-        }
+        .student-card:active { transform: scale(.97); }
 
         .student-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
+            width: 48px; height: 48px; border-radius: 50%;
             background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #000;
-            font-size: 20px;
-            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            color: #000; font-size: 20px; flex-shrink: 0;
             box-shadow: 0 4px 12px rgba(212,175,55,0.25);
         }
 
         .student-info { flex: 1; min-width: 0; }
         .student-info h6 {
-            font-weight: 700;
-            color: var(--text-primary);
-            margin: 0;
-            font-size: 15px;
+            font-weight: 700; color: var(--text-primary);
+            margin: 0; font-size: 15px;
         }
         .student-info p {
-            margin: 2px 0 0;
-            font-size: 12px;
-            color: var(--text-secondary);
+            margin: 2px 0 0; font-size: 12px; color: var(--text-secondary);
         }
 
         .student-info .badge-curso {
             display: inline-block;
             background: rgba(212,175,55,0.1);
             color: var(--gold-dark);
-            font-size: 10px;
-            font-weight: 600;
-            padding: 2px 10px;
-            border-radius: 20px;
+            font-size: 10px; font-weight: 600;
+            padding: 2px 10px; border-radius: 20px;
             margin-top: 4px;
         }
 
-        .student-chevron {
-            color: #ccc;
-            font-size: 18px;
-            flex-shrink: 0;
-        }
+        .student-chevron { color: #ccc; font-size: 18px; flex-shrink: 0; transition: transform .2s; }
+        .student-card:hover .student-chevron { transform: translateX(3px); color: var(--gold); }
 
-        /* ── Grade card ── */
         .grade-card {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 14px 18px;
-            border-bottom: 1px solid #f0ede8;
+            border-bottom: 1px solid var(--border);
+            transition: background .15s;
         }
-
-        .grade-card:last-child {
-            border-bottom: none;
-        }
-
-        .grade-card:hover {
-            background: #faf8f5;
-        }
+        .grade-card:last-child { border-bottom: none; }
+        .grade-card:hover { background: var(--surface-alt); }
 
         .grade-card .subject-name {
-            font-weight: 500;
-            color: var(--text-primary);
-            font-size: 14px;
+            font-weight: 500; color: var(--text-primary); font-size: 14px;
         }
 
         .grade-badge {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 16px;
-            flex-shrink: 0;
+            width: 44px; height: 44px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 16px; flex-shrink: 0;
         }
-
         .grade-badge.high { background: rgba(25,135,84,0.12); color: #198754; }
         .grade-badge.medium { background: rgba(255,193,7,0.15); color: #997404; }
         .grade-badge.low { background: rgba(220,53,69,0.1); color: #dc3545; }
 
-        /* ── Average pill ── */
         .avg-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 20px;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 18px;
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 20px; border-radius: 50px;
+            font-weight: 700; font-size: 18px;
         }
-
         .avg-pill.high { background: rgba(25,135,84,0.1); color: #198754; }
         .avg-pill.medium { background: rgba(255,193,7,0.12); color: #997404; }
         .avg-pill.low { background: rgba(220,53,69,0.1); color: #dc3545; }
 
-        /* ── Period tabs ── */
         .period-tabs {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            padding-bottom: 4px;
+            display: flex; gap: 8px; overflow-x: auto;
+            -webkit-overflow-scrolling: touch; padding-bottom: 4px;
             scrollbar-width: none;
         }
-
         .period-tabs::-webkit-scrollbar { display: none; }
 
         .period-tab {
-            flex-shrink: 0;
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-size: 13px;
-            font-weight: 600;
+            flex-shrink: 0; padding: 10px 20px; border-radius: 50px;
+            font-size: 13px; font-weight: 600;
             border: 1.5px solid var(--border);
-            background: var(--surface);
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all .2s;
-            text-decoration: none;
-            font-family: 'Outfit', sans-serif;
+            background: var(--surface); color: var(--text-secondary);
+            cursor: pointer; transition: all .2s;
+            text-decoration: none; font-family: 'Outfit', sans-serif;
         }
-
-        .period-tab:hover {
-            border-color: var(--gold);
-            color: var(--gold-dark);
-        }
-
+        .period-tab:hover { border-color: var(--gold); color: var(--gold-dark); }
         .period-tab.active {
-            background: var(--bg-dark);
-            border-color: var(--gold);
-            color: var(--gold);
+            background: var(--bg-dark); border-color: var(--gold); color: var(--gold);
         }
-
         .period-tab i { margin-right: 6px; }
 
-        /* ── Section title ── */
         .section-title {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-size: 20px; font-weight: 700; color: var(--text-primary);
+            margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
         }
-
         .section-title i { color: var(--gold); }
 
-        /* ── Empty state ── */
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-        }
-        .empty-state i { font-size: 44px; color: #ddd; margin-bottom: 10px; display: block; }
-        .empty-state h5 { font-family: 'Cormorant Garamond', serif; color: #444; font-weight: 700; }
+        .empty-state { text-align: center; padding: 40px 20px; }
+        .empty-state i { font-size: 44px; color: var(--text-muted); margin-bottom: 10px; display: block; }
+        .empty-state h5 { font-family: 'Cormorant Garamond', serif; color: var(--text-primary); font-weight: 700; }
         .empty-state p { color: var(--text-muted); font-size: 13px; margin-bottom: 0; }
 
-        /* ── Student header in boletín ── */
-        .student-header {
-            text-align: center;
-            padding: 20px 0 24px;
-        }
-
+        .student-header { text-align: center; padding: 20px 0 24px; }
         .student-header .big-avatar {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
+            width: 64px; height: 64px; border-radius: 50%;
             background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #000;
-            font-size: 28px;
-            margin: 0 auto 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: #000; font-size: 28px; margin: 0 auto 10px;
             box-shadow: 0 6px 20px rgba(212,175,55,0.25);
         }
-
         .student-header h4 {
             font-family: 'Cormorant Garamond', serif;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 2px;
+            font-weight: 700; color: var(--text-primary); margin-bottom: 2px;
         }
+        .student-header p { color: var(--text-secondary); font-size: 13px; margin: 0; }
 
-        .student-header p {
-            color: var(--text-secondary);
-            font-size: 13px;
-            margin: 0;
-        }
-
-        /* ── Utility ── */
         .text-gold { color: var(--gold-dark); }
         .fw-medium { font-weight: 500; }
 
+        /* ── Toast notification ── */
+        .toast-gca {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+            background: var(--bg-dark); color: var(--gold);
+            padding: 12px 24px; border-radius: 50px;
+            font-size: 13px; font-weight: 600;
+            box-shadow: 0 8px 30px rgba(0,0,0,.25);
+            z-index: 1000;
+            display: flex; align-items: center; gap: 8px;
+            animation: fadeInUp .3s ease;
+            border: 1px solid rgba(212,175,55,.2);
+            max-width: 90%;
+            white-space: nowrap;
+        }
+
+        .btn-gca-pdf {
+            display: inline-flex; align-items: center; gap: 8px;
+            color: #fff; background: var(--gold-dark);
+            padding: 10px 24px; border-radius: 12px;
+            text-decoration: none; font-weight: 600; font-size: 14px;
+            transition: all .2s; border: none;
+        }
+        .btn-gca-pdf:hover { background: #b8951f; color: #fff; }
+
         @media (max-width: 480px) {
+            body { padding-top: 56px; }
+            .app-header { height: 56px; padding: 0 12px; padding-top: env(safe-area-inset-top, 0px); padding-bottom: 8px; }
             .app-content { padding: 16px 12px; }
-            .app-header { padding: 0 12px; }
             .app-header-brand span { font-size: 16px; }
-            .app-header-brand img { height: 30px; }
+            .app-header-brand img { height: 26px; }
+            .app-header-brand small { display: none; }
         }
 
         @media (min-width: 768px) {
@@ -434,98 +400,36 @@
     </style>
     <!-- ── Dark Mode overrides ── -->
     <style>
-        .dark-mode,
-        [data-bs-theme="dark"] {
-            color-scheme: dark;
-        }
-        .dark-mode table,
-        .dark-mode .table,
-        .dark-mode .card,
-        .dark-mode .gca-card,
-        .dark-mode .card-form,
-        .dark-mode .stats-card,
-        .dark-mode .modal-content,
-        .dark-mode .list-group-item,
-        .dark-mode .dropdown-menu,
-        .dark-mode .accordion-item,
-        .dark-mode .accordion-button,
-        .dark-mode .page-link,
-        .dark-mode .page-item.disabled .page-link,
-        .dark-mode .ts-control,
-        .dark-mode .ts-dropdown,
-        .dark-mode .form-control,
-        .dark-mode .form-select {
-            background-color: var(--bg-surface);
-            color: var(--text-primary);
-            border-color: var(--border);
+        .dark-mode table, .dark-mode .table, .dark-mode .card, .dark-mode .gca-card,
+        .dark-mode .card-form, .dark-mode .stats-card, .dark-mode .modal-content,
+        .dark-mode .list-group-item, .dark-mode .dropdown-menu, .dark-mode .accordion-item,
+        .dark-mode .accordion-button, .dark-mode .page-link, .dark-mode .page-item.disabled .page-link,
+        .dark-mode .ts-control, .dark-mode .ts-dropdown, .dark-mode .form-control, .dark-mode .form-select {
+            background-color: var(--bg-surface); color: var(--text-primary); border-color: var(--border);
         }
         .dark-mode .table-striped > tbody > tr:nth-of-type(odd) > * {
-            background-color: rgba(0,0,0,.15);
-            color: var(--text-primary);
+            background-color: rgba(0,0,0,.15); color: var(--text-primary);
         }
         .dark-mode .table-hover > tbody > tr:hover > * {
-            background-color: rgba(212,175,55,.06);
-            color: var(--text-primary);
+            background-color: rgba(212,175,55,.06); color: var(--text-primary);
         }
         .dark-mode .accordion-button:not(.collapsed) {
-            background-color: rgba(212,175,55,.08);
-            color: var(--gold);
+            background-color: rgba(212,175,55,.08); color: var(--gold);
         }
-        .dark-mode .page-link {
-            background-color: var(--bg-surface);
-            border-color: var(--border);
-            color: var(--text-primary);
-        }
-        .dark-mode .page-link:hover {
-            background-color: rgba(212,175,55,.1);
-            color: var(--gold);
-        }
-        .dark-mode .page-item.active .page-link {
-            background-color: var(--gold);
-            border-color: var(--gold);
-            color: #000;
-        }
-        .dark-mode .page-item.disabled .page-link {
-            background-color: rgba(0,0,0,.2);
-            color: var(--text-muted);
-        }
-        .dark-mode .modal-header,
-        .dark-mode .modal-footer {
-            border-color: var(--border);
-        }
-        .dark-mode .btn-close {
-            filter: invert(1) grayscale(100%) brightness(200%);
-        }
-        .dark-mode .breadcrumb-item.active {
-            color: var(--text-primary);
-        }
-        .dark-mode .breadcrumb-item + .breadcrumb-item::before {
-            color: var(--text-muted);
-        }
-        .dark-mode .form-control::placeholder,
-        .dark-mode .form-select::placeholder {
-            color: var(--text-muted);
-        }
-        .dark-mode .alert {
-            background-color: var(--alert-bg);
-            color: var(--alert-color);
-            border-color: var(--border);
-        }
-        .dark-mode .ts-dropdown .option.active {
-            background: rgba(212,175,55,.12);
-            color: var(--gold);
-        }
-        .dark-mode .ts-wrapper .ts-control {
-            background: var(--bg-surface);
-            color: var(--text-primary);
-            border-color: var(--border);
-        }
-        .dark-mode .ts-wrapper.multi .ts-control > div .remove {
-            border-color: rgba(212,175,55,.15);
-            color: var(--text-muted);
-        }
-        .dark-mode .ts-wrapper.multi .ts-control > div .remove:hover {
-            background: rgba(212,175,55,.15);
-        }
+        .dark-mode .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+        .dark-mode .page-link { background-color: var(--bg-surface); border-color: var(--border); color: var(--text-primary); }
+        .dark-mode .page-link:hover { background-color: rgba(212,175,55,.1); color: var(--gold); }
+        .dark-mode .page-item.active .page-link { background-color: var(--gold); border-color: var(--gold); color: #000; }
+        .dark-mode .page-item.disabled .page-link { background-color: rgba(0,0,0,.2); color: var(--text-muted); }
+        .dark-mode .alert { background-color: var(--alert-bg); color: var(--alert-color); border-color: var(--border); }
+        .dark-mode .ts-dropdown { background: var(--bg-surface); border-color: var(--border); }
+        .dark-mode .ts-dropdown .option.active { background: rgba(212,175,55,.12); color: var(--gold); }
+        .dark-mode .ts-wrapper .ts-control { background: var(--bg-surface); color: var(--text-primary); border-color: var(--border); }
+        .dark-mode .ts-wrapper.multi .ts-control > div { background: rgba(212,175,55,.1); border-color: rgba(212,175,55,.25); color: var(--text-primary); }
+        .dark-mode .ts-wrapper.multi .ts-control > div .remove { border-color: rgba(212,175,55,.15); color: var(--text-muted); }
+        .dark-mode .ts-wrapper.multi .ts-control > div .remove:hover { background: rgba(212,175,55,.15); }
+        .dark-mode .grade-card { border-color: var(--border); }
+        .dark-mode .grade-card:hover { background: var(--surface-alt); }
+        .dark-mode .empty-state i { color: var(--text-muted); }
     </style>
 </head>

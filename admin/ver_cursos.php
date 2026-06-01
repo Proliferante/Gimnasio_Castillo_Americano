@@ -90,7 +90,7 @@ include "includes/header.php";
                                         </a>
                                         <a href="ver_cursos.php?id=<?= $c["id"] ?>&confirmar=1"
                                             class="btn-action btn-delete" title="Eliminar"
-                                            onclick="return confirm('¿Seguro que deseas eliminar este curso?');">
+                                            onclick="event.preventDefault();showConfirm('¿Seguro que deseas eliminar este curso?',()=>window.location.href=this.href);">
                                             <i class="bi bi-trash"></i>
                                         </a>
                                     </td>

@@ -188,9 +188,10 @@ include "includes/header.php";
                                                     <?= htmlspecialchars($a['asignatura_nombre']) ?>
                                                 </td>
                                                 <td>
-                                                    <form method="POST" onsubmit="return confirm('¿Eliminar esta asignación?');">
+                                                    <form method="POST" id="deleteForm<?= $a['id'] ?>">
                                                         <input type="hidden" name="eliminar" value="<?= $a['id'] ?>">
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger border-0"
+                                                        <button type="button" class="btn btn-sm btn-outline-danger border-0"
+                                                                onclick="showConfirm('¿Eliminar esta asignación?',()=>document.getElementById('deleteForm<?= $a['id'] ?>').submit());"
                                                                 style="font-size:16px;padding:2px 6px;">
                                                             <i class="bi bi-trash3"></i>
                                                         </button>

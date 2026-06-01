@@ -47,111 +47,118 @@ if (count($hijos_ids) > 0) {
     }
 }
 
-$pageTitle = "Mis Hijos";
+$h = (int)date('H');
+$saludo = $h < 12 ? 'Buenos días' : ($h < 18 ? 'Buenas tardes' : 'Buenas noches');
+$pageTitle = "Inicio";
 include "includes/header.php";
 ?>
 
 <body>
 
-    <!-- App header -->
-    <header class="app-header">
-        <a href="dashboard.php" class="app-header-brand">
-            <img src="../assets/img/logo_gca.png" alt="GCA">
-            <div>
-                <span>Familia GCA</span>
-                <small>Panel de Padres</small>
-            </div>
+<header class="app-header">
+    <a href="dashboard.php" class="app-header-brand">
+        <img src="../assets/img/logo_gca.png" alt="GCA">
+        <div>
+            <span>Familia GCA</span>
+            <small>Panel de Padres</small>
+        </div>
+    </a>
+    <div class="header-actions">
+        <a href="#" class="btn-header" id="dmToggle" title="Modo oscuro" onclick="document.body.classList.toggle('dark-mode');document.documentElement.setAttribute('data-bs-theme',document.body.classList.contains('dark-mode')?'dark':'');localStorage.setItem('gca-dark-mode',document.body.classList.contains('dark-mode'));this.querySelector('i').className=document.body.classList.contains('dark-mode')?'bi bi-sun':'bi bi-moon-stars';">
+            <i class="bi bi-moon-stars"></i>
         </a>
-        <a href="../auth/logout.php" class="btn-header">
+        <a href="../auth/logout.php" class="btn-header logout">
             <i class="bi bi-box-arrow-right"></i> Salir
         </a>
-    </header>
+    </div>
+</header>
 
-    <main class="app-content">
+<main class="app-content">
 
-        <!-- Welcome -->
-        <div style="margin-bottom:20px;">
-            <h5 style="font-family:'Cormorant Garamond',serif;font-weight:700;color:#1a1a1a;margin:0;font-size:22px;">
-                <i class="bi bi-house-fill" style="color:var(--gold);margin-right:8px;"></i>Mis Hijos
-            </h5>
-            <p style="color:var(--text-secondary);font-size:13px;margin:4px 0 0;">
-                <?php
-                $h = (int)date('H');
-                $saludo = $h < 12 ? 'Buenos días' : ($h < 18 ? 'Buenas tardes' : 'Buenas noches');
-                ?><?= $saludo ?>, <?= htmlspecialchars($nombre_padre) ?> — selecciona un hijo para ver su boletín
-            </p>
-        </div>
+    <div style="margin-bottom:20px;">
+        <h5 class="section-title" style="margin-bottom:2px;">
+            <i class="bi bi-house-fill"></i>Mis Hijos
+        </h5>
+        <p style="color:var(--text-secondary);font-size:13px;margin:0;">
+            <?= $saludo ?>, <?= htmlspecialchars($nombre_padre) ?> — selecciona un hijo para ver su boletín
+        </p>
+    </div>
 
-        <?php if (count($alertas_padre) > 0): ?>
-            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
-                <?php foreach ($alertas_padre as $al): ?>
-                    <div style="background:#fff3f3;border-left:4px solid #dc3545;border-radius:10px;padding:10px 14px;">
-                        <div class="d-flex align-items-start gap-2">
-                            <i class="bi bi-exclamation-triangle-fill" style="color:#dc3545;font-size:16px;margin-top:1px;"></i>
-                            <div>
-                                <strong style="font-size:13px;color:#1a1a1a;"><?= htmlspecialchars($al['titulo']) ?></strong>
-                                <p style="font-size:12px;color:#666;margin:2px 0 0;"><?= nl2br(htmlspecialchars($al['mensaje'])) ?></p>
-                            </div>
+    <?php if (count($alertas_padre) > 0): ?>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+            <?php foreach ($alertas_padre as $al): ?>
+                <div style="background:var(--alert-bg);border-left:4px solid var(--alert-color);border-radius:10px;padding:10px 14px;">
+                    <div class="d-flex align-items-start gap-2">
+                        <i class="bi bi-exclamation-triangle-fill" style="color:var(--alert-color);font-size:16px;margin-top:1px;"></i>
+                        <div>
+                            <strong style="font-size:13px;color:var(--text-primary);"><?= htmlspecialchars($al['titulo']) ?></strong>
+                            <p style="font-size:12px;color:var(--text-secondary);margin:2px 0 0;"><?= nl2br(htmlspecialchars($al['mensaje'])) ?></p>
                         </div>
                     </div>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
-
-        <?php if (count($hijos) === 0): ?>
-            <div class="app-card">
-                <div class="empty-state">
-                    <i class="bi bi-people"></i>
-                    <h5>Sin estudiantes vinculados</h5>
-                    <p>No hay hijos asignados a tu cuenta. Consulta con la administración del colegio.</p>
                 </div>
-            </div>
-        <?php else: ?>
-            <div style="display:flex;flex-direction:column;gap:12px;">
-                <?php foreach ($hijos as $h):
-                    $h_boletines = $boletines_disponibles[$h['id']] ?? [];
-                ?>
-                    <a href="boletin.php?estudiante=<?= $h['id'] ?>" class="student-card">
-                        <div class="student-avatar">
-                            <?= strtoupper(substr($h['nombre'], 0, 2)) ?>
-                        </div>
-                        <div class="student-info">
-                            <h6><?= htmlspecialchars($h['nombre']) ?></h6>
-                            <p>
-                                <?php if ($h['grado']): ?>
-                                    Curso <?= htmlspecialchars($h['grado'] . ' ' . $h['curso_nombre']) ?>
-                                <?php else: ?>
-                                    Sin curso asignado
-                                <?php endif; ?>
-                            </p>
-                            <div style="display:flex;gap:4px;flex-wrap:wrap;">
-                                <?php if ($h['grado']): ?>
-                                    <span class="badge-curso">
-                                        <i class="bi bi-book-fill" style="font-size:9px;"></i>
-                                        <?= htmlspecialchars($h['grado']) ?>
-                                    </span>
-                                <?php endif; ?>
-                                <?php if (count($h_boletines) > 0): ?>
-                                    <span style="background:#e8f5e9;color:#2e7d32;font-size:10px;font-weight:600;padding:1px 8px;border-radius:20px;">
-                                        <i class="bi bi-file-pdf-fill"></i> PDF
-                                    </span>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                        <i class="bi bi-chevron-right student-chevron"></i>
-                    </a>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
-
-        <!-- Footer info -->
-        <div style="text-align:center;margin-top:32px;padding-top:20px;border-top:1px solid var(--border);">
-            <p style="font-size:11px;color:var(--text-muted);margin:0;">
-                <i class="bi bi-shield-check me-1"></i>
-                Gimnasio Castillo Americano &middot; Boletín Académico
-            </p>
+            <?php endforeach; ?>
         </div>
+    <?php endif; ?>
 
-    </main>
+    <?php if (count($hijos) === 0): ?>
+        <div class="app-card">
+            <div class="empty-state">
+                <i class="bi bi-people"></i>
+                <h5>Sin estudiantes vinculados</h5>
+                <p>No hay hijos asignados a tu cuenta. Consulta con la administración del colegio.</p>
+            </div>
+        </div>
+    <?php else: ?>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+            <?php foreach ($hijos as $h):
+                $h_boletines = $boletines_disponibles[$h['id']] ?? [];
+                $nuevo = count($h_boletines) > 0;
+            ?>
+                <a href="boletin.php?estudiante=<?= $h['id'] ?>" class="student-card" style="position:relative;">
+                    <?php if ($nuevo): ?>
+                        <span style="position:absolute;top:-4px;right:-4px;width:20px;height:20px;background:#dc3545;color:#fff;border-radius:50%;font-size:10px;display:flex;align-items:center;justify-content:center;border:2px solid var(--surface);">
+                            <i class="bi bi-file-pdf-fill" style="font-size:8px;"></i>
+                        </span>
+                    <?php endif; ?>
+                    <div class="student-avatar">
+                        <?= strtoupper(substr($h['nombre'], 0, 2)) ?>
+                    </div>
+                    <div class="student-info">
+                        <h6><?= htmlspecialchars($h['nombre']) ?></h6>
+                        <p>
+                            <?php if ($h['grado']): ?>
+                                Curso <?= htmlspecialchars($h['grado'] . ' ' . $h['curso_nombre']) ?>
+                            <?php else: ?>
+                                Sin curso asignado
+                            <?php endif; ?>
+                        </p>
+                        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                            <?php if ($h['grado']): ?>
+                                <span class="badge-curso">
+                                    <i class="bi bi-book-fill" style="font-size:9px;"></i>
+                                    <?= htmlspecialchars($h['grado']) ?>
+                                </span>
+                            <?php endif; ?>
+                            <?php if ($nuevo): ?>
+                                <span style="background:rgba(25,135,84,0.1);color:#198754;font-size:10px;font-weight:600;padding:2px 10px;border-radius:20px;">
+                                    <i class="bi bi-file-pdf-fill"></i> Boletín
+                                </span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <i class="bi bi-chevron-right student-chevron"></i>
+                </a>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
 
-    <?php include "includes/footer.php"; ?>
+    <div style="text-align:center;margin-top:32px;padding-top:20px;border-top:1px solid var(--border);">
+        <p style="font-size:11px;color:var(--text-muted);margin:0;">
+            <i class="bi bi-shield-check me-1"></i>
+            Gimnasio Castillo Americano &middot; Boletín Académico
+        </p>
+    </div>
+
+</main>
+
+<?php include "includes/footer.php"; ?>

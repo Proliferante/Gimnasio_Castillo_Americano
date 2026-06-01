@@ -352,7 +352,7 @@ include "includes/header.php";
                                                            target="_blank"
                                                            class="btn-action btn-edit"
                                                            title="Generar boletín PDF (diseño actual)"
-                                                           onclick="return confirm('¿Generar boletín PDF para <?= htmlspecialchars($est['nombre'], ENT_QUOTES) ?>?')">
+                                                            onclick="event.preventDefault();showConfirm('¿Generar boletín PDF para <?= htmlspecialchars($est['nombre'], ENT_QUOTES) ?>?',()=>window.location.href=this.href)">
                                                             <i class="bi bi-filetype-pdf"></i>
                                                         </a>
                                                         <a href="generar_boletin.php?estudiante=<?= $est['id'] ?>&periodo=<?= $periodo_activo ?>&template=v2"
@@ -360,7 +360,7 @@ include "includes/header.php";
                                                            class="btn-action btn-edit"
                                                            title="Generar boletín PDF (nuevo diseño)"
                                                            style="background:#C8A84B;border-color:#b8951f;color:#111;"
-                                                           onclick="return confirm('¿Generar boletín (nuevo diseño) para <?= htmlspecialchars($est['nombre'], ENT_QUOTES) ?>?')">
+                                                            onclick="event.preventDefault();showConfirm('¿Generar boletín (nuevo diseño) para <?= htmlspecialchars($est['nombre'], ENT_QUOTES) ?>?',()=>window.location.href=this.href)">
                                                             <i class="bi bi-layout-text-window-reverse"></i>
                                                         </a>
                                                     </div>

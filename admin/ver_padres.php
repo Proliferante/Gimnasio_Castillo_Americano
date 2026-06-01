@@ -78,7 +78,7 @@ include "includes/header.php";
                                         </a>
                                         <a href="ver_padres.php?id=<?= $p["id"] ?>&confirmar=1"
                                             class="btn-action btn-delete" title="Eliminar"
-                                            onclick="return confirm('¿Seguro que deseas eliminar este padre?');">
+                                            onclick="event.preventDefault();showConfirm('¿Seguro que deseas eliminar este padre?',()=>window.location.href=this.href);">
                                             <i class="bi bi-trash"></i>
                                         </a>
                                     </td>
