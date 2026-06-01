@@ -1,5 +1,6 @@
 /.env
 /vendor/
+/lib/vendor/
 /node_modules/
 *.log
 .DS_Store
@@ -11,3 +12,4 @@ __pycache__/
 /colegio_db (1).sql
 /database_migration.sql
 /assets/boletines/
+*.phar
