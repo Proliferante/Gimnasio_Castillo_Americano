@@ -71,17 +71,24 @@ if (!function_exists('config')) {
     static $config = [];
 
     if (empty($config)) {
+        // Railway.app MySQL — detecta vars inyectadas automáticamente
+        $dbHost = env('MYSQLHOST') ?: env('DB_HOST', 'localhost');
+        $dbPort = env('MYSQLPORT') ?: env('DB_PORT', '3306');
+        $dbName = env('MYSQLDATABASE') ?: env('DB_NAME', 'colegio_db');
+        $dbUser = env('MYSQLUSER') ?: env('DB_USER', 'root');
+        $dbPass = env('MYSQLPASSWORD') ?: env('DB_PASS', '');
+
         $config = [
             'app.name'    => env('APP_NAME', 'Sistema Académico'),
             'app.env'     => env('APP_ENV', 'production'),
             'app.debug'   => env('APP_DEBUG', false),
             'app.url'     => env('APP_URL', 'http://localhost'),
-            'db.host'     => env('DB_HOST', 'localhost'),
-            'db.port'     => env('DB_PORT', '3306'),
-            'db.name'     => env('DB_NAME', 'colegio_db'),
-            'db.user'     => env('DB_USER', 'root'),
-            'db.pass'     => env('DB_PASS', ''),
-            'db.charset'  => env('DB_CHARSET', 'utf8'),
+            'db.host'     => $dbHost,
+            'db.port'     => $dbPort,
+            'db.name'     => $dbName,
+            'db.user'     => $dbUser,
+            'db.pass'     => $dbPass,
+            'db.charset'  => env('DB_CHARSET', 'utf8mb4'),
             'session.lifetime' => (int) env('SESSION_LIFETIME', 7200),
         ];
     }
