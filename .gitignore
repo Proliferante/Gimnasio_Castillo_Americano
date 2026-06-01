@@ -7,9 +7,21 @@
 Thumbs.db
 __pycache__/
 *.pyc
+*.pyo
+*.whl
 /admin/__pycache__/
 /tools/
 /colegio_db (1).sql
 /database_migration.sql
 /assets/boletines/
 *.phar
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+/.project
+/.buildpath
+/.settings/
+composer.phar
+*.zip
