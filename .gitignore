@@ -1,0 +1,13 @@
+/.env
+/vendor/
+/node_modules/
+*.log
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc
+/admin/__pycache__/
+/tools/
+/colegio_db (1).sql
+/database_migration.sql
+/assets/boletines/
