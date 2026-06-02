@@ -1,7 +1,7 @@
 </main>
 
 <!-- FOOTER -->
-<footer style="background:#0f0f0f; color:#dcdcdc; border-top:4px solid #c9a24d;">
+<footer style="background:var(--gca-dark); color:#dcdcdc; border-top:4px solid var(--gca-gold);">
     <div class="container py-5">
 
         <div class="row gy-4">
@@ -14,13 +14,13 @@
                         <h5 class="mb-0 text-white fw-bold">
                             Gimnasio Castillo Americano
                         </h5>
-                        <small style="color:#c9a24d;">
+                        <small style="color:var(--gca-gold);">
                             “Cultivar para cosechar”
                         </small>
                     </div>
                 </div>
 
-                <p style="font-size:14px; color:#bfbfbf;">
+                <p style="font-size:14px; color:var(--gca-footer-text);">
                     Institución educativa comprometida con la formación integral,
                     el desarrollo humano y la excelencia académica.
                 </p>
@@ -28,7 +28,7 @@
 
             <!-- ENLACES -->
             <div class="col-md-4">
-                <h6 class="text-uppercase fw-bold mb-3" style="color:#c9a24d;">
+                <h6 class="text-uppercase fw-bold mb-3" style="color:var(--gca-gold);">
                     Enlaces institucionales
                 </h6>
 
@@ -63,7 +63,7 @@
 
             <!-- CONTACTO -->
             <div class="col-md-4">
-                <h6 class="text-uppercase fw-bold mb-3" style="color:#c9a24d;">
+                <h6 class="text-uppercase fw-bold mb-3" style="color:var(--gca-gold);">
                     Información de contacto
                 </h6>
 

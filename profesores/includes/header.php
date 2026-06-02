@@ -283,19 +283,19 @@
             background: none;
             border: none;
             font-size: 20px;
-            color: #555;
+            color: var(--text-secondary);
             cursor: pointer;
             padding: 6px 8px;
             border-radius: 10px;
             transition: all .2s;
         }
-        .toggle-btn:hover { background: rgba(0, 0, 0, 0.05); color: #000; }
+        .toggle-btn:hover { background: rgba(0, 0, 0, 0.05); color: var(--text-primary); }
 
         .breadcrumb-bar { flex: 1; }
         .breadcrumb-bar h5 {
             font-family: 'Cormorant Garamond', serif;
             font-size: 19px;
-            color: #1a1a1a;
+            color: var(--text-primary);
             margin: 0;
             display: flex;
             align-items: center;
@@ -304,7 +304,7 @@
         .breadcrumb-bar h5 i { color: var(--gold); }
         .breadcrumb-bar p {
             font-size: 11px;
-            color: #999;
+            color: var(--text-muted);
             margin: 0;
             letter-spacing: .3px;
         }
@@ -423,7 +423,7 @@
         .header-box h4 {
             font-family: 'Cormorant Garamond', serif;
             font-weight: 700;
-            color: #111;
+            color: var(--text-primary);
             margin-bottom: 4px;
         }
         .header-box span {
@@ -446,7 +446,7 @@
             font-family: 'Cormorant Garamond', serif;
             font-size: 20px;
             font-weight: 700;
-            color: #1a1a1a;
+            color: var(--text-primary);
             margin: 0;
             display: flex;
             align-items: center;
@@ -491,20 +491,20 @@
             font-size: 26px;
             font-weight: 700;
             margin: 0;
-            color: #1a1a1a;
+            color: var(--text-primary);
         }
         .stat-info p {
             margin: 0;
             font-size: 12px;
-            color: #999;
+            color: var(--text-muted);
             letter-spacing: .3px;
         }
 
         .quick-card {
-            background: #fff;
+            background: var(--bg-card);
             border-radius: 14px;
             padding: 28px 24px;
-            border: 1px solid #ece8e0;
+            border: 1px solid var(--border-color);
             text-align: center;
             transition: box-shadow .2s, transform .2s;
             text-decoration: none;
@@ -522,12 +522,12 @@
         }
         .quick-card h6 {
             font-weight: 700;
-            color: #1a1a1a;
+            color: var(--text-primary);
             margin-bottom: 4px;
         }
         .quick-card p {
             font-size: 12px;
-            color: #999;
+            color: var(--text-muted);
             margin: 0;
         }
 
@@ -662,6 +662,13 @@
         .dark-mode .btn-edit:hover { color: #fff; background: var(--gold); }
         .dark-mode .btn-delete { color: #f87171; background: rgba(220,38,38,.08); }
         .dark-mode .btn-delete:hover { color: #fff; background: #dc3545; }
+        .dark-mode .stat-card {
+            background: var(--bg-card);
+            border-color: var(--border-color);
+        }
+        .dark-mode .stat-info p { color: var(--text-muted); }
+        .dark-mode .toggle-btn { color: var(--text-secondary); }
+        .dark-mode .toggle-btn:hover { background: rgba(255,255,255,.06); color: var(--text-primary); }
         .dark-mode .empty-state,
         .dark-mode .empty-state i { color: var(--text-muted); }
         .dark-mode .ts-dropdown {

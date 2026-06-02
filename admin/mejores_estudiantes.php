@@ -1,16 +1,10 @@
 <?php
-session_start();
-require_once "../config/database.php";
+require_once __DIR__ . '/../includes/init.php';
+checkRole('admin');
 require_once "../lib/rank_helper.php";
 
-if (!isset($_SESSION["rol"]) || $_SESSION["rol"] !== "admin") {
-    header("Location: ../login.php");
-    exit;
-}
-
 /* ── Get active period and available periods ── */
-$configs = $conexion->query("SELECT clave, valor FROM configuraciones")->fetchAll(PDO::FETCH_KEY_PAIR);
-$periodo_activo = $configs['periodo_activo'] ?? '1';
+$periodo_activo = getConfig('periodo_activo') ?? '1';
 
 $periodos_disponibles = $conexion->query("
     SELECT DISTINCT periodo FROM notas ORDER BY FIELD(periodo, '1','2','3','4','1er Periodo','2do Periodo','3er Periodo','4to Periodo')

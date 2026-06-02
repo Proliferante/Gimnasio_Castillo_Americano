@@ -45,25 +45,33 @@ include "includes/header.php";
                     <h4 style="font-family:'Cormorant Garamond',serif;color:#444;font-weight:700;">Sin asignaciones</h4>
                     <p class="text-muted mb-0">Aún no tienes cursos asignados. Consulta con la administración.</p>
                 </div>
-            <?php else: ?>
+            <?php else:
+                // Pre-load all promedios for all courses in one query
+                $curso_ids = array_column($cursos, 'id');
+                $placeholders = implode(',', array_fill(0, count($curso_ids), '?'));
+                $promedios_por_curso = [];
+                $stmtP = $conexion->prepare("
+                    SELECT n.curso_id, e.nombre AS estudiante,
+                           a.nombre AS asignatura,
+                           ROUND(AVG(n.nota), 1) AS promedio
+                    FROM notas n
+                    JOIN estudiantes e ON n.estudiante_id = e.id
+                    JOIN asignaturas a ON n.asignatura_id = a.id
+                    JOIN profesor_curso_asignatura pca
+                         ON pca.curso_id = n.curso_id
+                         AND pca.asignatura_id = n.asignatura_id
+                    WHERE n.curso_id IN ($placeholders) AND pca.profesor_id = ?
+                    GROUP BY n.curso_id, e.id, a.id
+                    ORDER BY e.nombre, a.nombre
+                ");
+                $stmtP->execute(array_merge($curso_ids, [$profesor_id]));
+                foreach ($stmtP->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                    $promedios_por_curso[$row['curso_id']][] = $row;
+                }
+            ?>
                 <div class="accordion" id="accordionCursos">
                     <?php foreach ($cursos as $i => $curso):
-                        $promedios = $conexion->prepare("
-                            SELECT e.nombre AS estudiante,
-                                   a.nombre AS asignatura,
-                                   ROUND(AVG(n.nota), 1) AS promedio
-                            FROM notas n
-                            JOIN estudiantes e ON n.estudiante_id = e.id
-                            JOIN asignaturas a ON n.asignatura_id = a.id
-                            JOIN profesor_curso_asignatura pca
-                                 ON pca.curso_id = n.curso_id
-                                 AND pca.asignatura_id = n.asignatura_id
-                            WHERE n.curso_id = ? AND pca.profesor_id = ?
-                            GROUP BY e.id, a.id
-                            ORDER BY e.nombre, a.nombre
-                        ");
-                        $promedios->execute([$curso['id'], $profesor_id]);
-                        $promedios = $promedios->fetchAll(PDO::FETCH_ASSOC);
+                        $promedios = $promedios_por_curso[$curso['id']] ?? [];
                     ?>
                         <div class="accordion-item mb-3" style="border-radius:14px !important;border:1px solid #ece8e0;overflow:hidden;">
                             <h2 class="accordion-header">

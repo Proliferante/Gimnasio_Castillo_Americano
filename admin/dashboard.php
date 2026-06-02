@@ -5,13 +5,23 @@ checkRole('admin');
 
 $nombre_admin = htmlspecialchars(userName() ?? "Administrador");
 
-$total_usuarios = $conexion->query("SELECT COUNT(*) FROM usuarios")->fetchColumn();
-$total_profesores = $conexion->query("SELECT COUNT(*) FROM usuarios WHERE rol = 'profesor'")->fetchColumn();
-$total_estudiantes_usuarios = $conexion->query("SELECT COUNT(*) FROM usuarios WHERE rol = 'estudiante'")->fetchColumn();
-$total_estudiantes = $conexion->query("SELECT COUNT(*) FROM estudiantes")->fetchColumn();
-$total_padres = $conexion->query("SELECT COUNT(*) FROM usuarios WHERE rol = 'padre'")->fetchColumn();
-$total_cursos = $conexion->query("SELECT COUNT(*) FROM cursos")->fetchColumn();
-$total_asignaturas = $conexion->query("SELECT COUNT(*) FROM asignaturas")->fetchColumn();
+$stats = $conexion->query("
+    SELECT
+        (SELECT COUNT(*) FROM usuarios) AS total_usuarios,
+        (SELECT COUNT(*) FROM usuarios WHERE rol = 'profesor') AS total_profesores,
+        (SELECT COUNT(*) FROM usuarios WHERE rol = 'estudiante') AS total_estudiantes_usuarios,
+        (SELECT COUNT(*) FROM estudiantes) AS total_estudiantes,
+        (SELECT COUNT(*) FROM usuarios WHERE rol = 'padre') AS total_padres,
+        (SELECT COUNT(*) FROM cursos) AS total_cursos,
+        (SELECT COUNT(*) FROM asignaturas) AS total_asignaturas
+")->fetch(PDO::FETCH_ASSOC);
+$total_usuarios = $stats['total_usuarios'];
+$total_profesores = $stats['total_profesores'];
+$total_estudiantes_usuarios = $stats['total_estudiantes_usuarios'];
+$total_estudiantes = $stats['total_estudiantes'];
+$total_padres = $stats['total_padres'];
+$total_cursos = $stats['total_cursos'];
+$total_asignaturas = $stats['total_asignaturas'];
 
 $ultimos_estudiantes = $conexion
     ->query("SELECT e.id, e.nombre, e.documento, c.grado, c.nombre AS curso_nombre, e.creado_en
@@ -65,14 +75,14 @@ include "includes/header.php";
     }
 
     .stat-card {
-        background: #fff;
+        background: var(--bg-card);
         border-radius: 16px;
         padding: 22px 24px;
         display: flex;
         align-items: center;
         gap: 18px;
-        border: 1px solid #ece8e0;
-        transition: transform 0.2s, box-shadow 0.2s;
+        border: 1px solid var(--border-color);
+        transition: transform 0.2s, box-shadow 0.2s, background .25s, border-color .25s;
     }
 
     .stat-card:hover {
@@ -123,7 +133,7 @@ include "includes/header.php";
 
     .stat-label {
         font-size: 13px;
-        color: #888;
+        color: var(--text-muted);
         text-transform: uppercase;
         letter-spacing: 0.5px;
         font-weight: 500;
@@ -133,7 +143,7 @@ include "includes/header.php";
         font-family: 'Cormorant Garamond', serif;
         font-size: 32px;
         font-weight: 700;
-        color: #1a1a1a;
+        color: var(--text-primary);
         line-height: 1.1;
     }
 
@@ -141,7 +151,7 @@ include "includes/header.php";
         font-family: 'Cormorant Garamond', serif;
         font-size: 20px;
         font-weight: 700;
-        color: #1a1a1a;
+        color: var(--text-primary);
         margin: 0 0 16px;
         display: flex;
         align-items: center;
@@ -149,7 +159,7 @@ include "includes/header.php";
     }
 
     .section-title i {
-        color: #d4af37;
+        color: var(--gold);
         font-size: 22px;
     }
 
@@ -161,28 +171,28 @@ include "includes/header.php";
     }
 
     .quick-action {
-        background: #fff;
-        border: 1px solid #ece8e0;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
         border-radius: 14px;
         padding: 18px 20px;
         text-decoration: none;
         display: flex;
         align-items: center;
         gap: 14px;
-        transition: all 0.2s;
-        color: #444;
+        transition: all 0.2s, background .25s, border-color .25s;
+        color: var(--text-secondary);
     }
 
     .quick-action:hover {
-        border-color: #d4af37;
+        border-color: var(--gold);
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(212, 175, 55, 0.12);
-        color: #1a1a1a;
+        color: var(--text-primary);
     }
 
     .quick-action i {
         font-size: 22px;
-        color: #d4af37;
+        color: var(--gold);
         width: 28px;
         text-align: center;
         flex-shrink: 0;
@@ -194,10 +204,11 @@ include "includes/header.php";
     }
 
     .recent-card {
-        background: #fff;
+        background: var(--bg-card);
         border-radius: 16px;
-        border: 1px solid #ece8e0;
+        border: 1px solid var(--border-color);
         overflow: hidden;
+        transition: background .25s, border-color .25s;
     }
 
     .recent-card .list-item {
@@ -205,7 +216,7 @@ include "includes/header.php";
         align-items: center;
         justify-content: space-between;
         padding: 14px 22px;
-        border-bottom: 1px solid #f0ede8;
+        border-bottom: 1px solid var(--table-row-border);
         transition: background 0.15s;
     }
 
@@ -214,29 +225,29 @@ include "includes/header.php";
     }
 
     .recent-card .list-item:hover {
-        background: #fcfbfa;
+        background: var(--bg-card-hover);
     }
 
     .recent-card .list-item .item-name {
         font-weight: 600;
-        color: #1a1a1a;
+        color: var(--text-primary);
         font-size: 14.5px;
     }
 
     .recent-card .list-item .item-meta {
         font-size: 12.5px;
-        color: #999;
+        color: var(--text-muted);
     }
 
     .recent-card .list-item .item-email {
         font-size: 13px;
-        color: #777;
+        color: var(--text-secondary);
     }
 
     .recent-card .empty-message {
         padding: 32px;
         text-align: center;
-        color: #aaa;
+        color: var(--text-muted);
         font-size: 14px;
     }
 

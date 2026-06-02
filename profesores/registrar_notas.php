@@ -1,19 +1,13 @@
 <?php
-session_start();
-require_once "../config/database.php";
+require_once __DIR__ . '/../includes/init.php';
+checkRole('profesor');
 require_once "../lib/alertas_helper.php";
 require_once "../lib/rank_helper.php";
 
-if (!isset($_SESSION["rol"]) || $_SESSION["rol"] !== "profesor") {
-    header("Location: ../login.php");
-    exit;
-}
+$profesor_id = userId();
 
-$profesor_id = $_SESSION["id"];
-
-$stmtConf = $conexion->query("SELECT clave, valor FROM configuraciones")->fetchAll(PDO::FETCH_KEY_PAIR);
-$plataforma_activa = ($stmtConf['plataforma_activa'] ?? '0') === '1';
-$periodo_activo = $stmtConf['periodo_activo'] ?? '1';
+$plataforma_activa = (getConfig('plataforma_activa') ?? '0') === '1';
+$periodo_activo = getConfig('periodo_activo') ?? '1';
 
 $mensaje = "";
 $error = "";
@@ -57,43 +51,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $asignacion_seleccionada && isset($
     try {
         $conexion->beginTransaction();
 
+        $est_ids = array_keys($estudiantes_post);
+        if (count($est_ids) === 0) throw new Exception("No hay estudiantes para guardar.");
+
+        // Single bulk check: verify all students belong to this course
+        $placeholders = implode(',', array_fill(0, count($est_ids), '?'));
+        $checkStmt = $conexion->prepare("SELECT id FROM estudiantes WHERE id IN ($placeholders) AND curso_id = ?");
+        $checkStmt->execute(array_merge($est_ids, [$curso_id]));
+        $valid_ids = $checkStmt->fetchAll(PDO::FETCH_COLUMN);
+        $valid_set = array_flip($valid_ids);
+
+        // Bulk DELETE existing notas for all students
+        $delNotas = $conexion->prepare("
+            DELETE FROM notas
+            WHERE estudiante_id IN ($placeholders) AND asignatura_id = ? AND periodo = ? AND curso_id = ?
+        ");
+        $delNotas->execute(array_merge($est_ids, [$asignatura_id, $periodo_activo, $curso_id]));
+
+        // Bulk DELETE existing logros
+        $delLogros = $conexion->prepare("
+            DELETE FROM logros WHERE estudiante_id IN ($placeholders) AND asignatura_id = ? AND periodo = ?
+        ");
+        $delLogros->execute(array_merge($est_ids, [$asignatura_id, $periodo_activo]));
+
+        // Batch INSERT notas + logros
+        $insNota = $conexion->prepare("
+            INSERT INTO notas (estudiante_id, profesor_id, asignatura_id, curso_id, periodo, nota)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ");
+        $insLogro = $conexion->prepare("
+            INSERT INTO logros (estudiante_id, asignatura_id, periodo, logro)
+            VALUES (?, ?, ?, ?)
+        ");
+
         foreach ($estudiantes_post as $est_id => $data) {
+            if (!isset($valid_set[$est_id])) continue;
+
             $nota_field = 'nota_' . $periodo_activo;
             $nota_valor = isset($data[$nota_field]) && $data[$nota_field] !== '' ? (int)$data[$nota_field] : null;
             $logro_texto = $data['logro'] ?? '';
 
-            // Verify student belongs to this course
-            $check = $conexion->prepare("SELECT id FROM estudiantes WHERE id = ? AND curso_id = ?");
-            $check->execute([$est_id, $curso_id]);
-            if (!$check->fetch()) continue;
-
             if ($nota_valor !== null && $nota_valor >= 0 && $nota_valor <= 100) {
-                // Delete existing nota for this (estudiante, asignatura, periodo, curso)
-                $del = $conexion->prepare("
-                    DELETE FROM notas
-                    WHERE estudiante_id = ? AND asignatura_id = ? AND periodo = ? AND curso_id = ?
-                ");
-                $del->execute([$est_id, $asignatura_id, $periodo_activo, $curso_id]);
-
-                // Insert new nota
-                $ins = $conexion->prepare("
-                    INSERT INTO notas (estudiante_id, profesor_id, asignatura_id, curso_id, periodo, nota)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                ");
-                $ins->execute([$est_id, $profesor_id, $asignatura_id, $curso_id, $periodo_activo, $nota_valor]);
+                $insNota->execute([$est_id, $profesor_id, $asignatura_id, $curso_id, $periodo_activo, $nota_valor]);
             }
 
-            // Handle logro
-            $delLogro = $conexion->prepare("
-                DELETE FROM logros WHERE estudiante_id = ? AND asignatura_id = ? AND periodo = ?
-            ");
-            $delLogro->execute([$est_id, $asignatura_id, $periodo_activo]);
-
             if (trim($logro_texto) !== '') {
-                $insLogro = $conexion->prepare("
-                    INSERT INTO logros (estudiante_id, asignatura_id, periodo, logro)
-                    VALUES (?, ?, ?, ?)
-                ");
                 $insLogro->execute([$est_id, $asignatura_id, $periodo_activo, trim($logro_texto)]);
             }
         }

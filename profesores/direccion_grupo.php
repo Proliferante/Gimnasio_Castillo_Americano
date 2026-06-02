@@ -1,18 +1,12 @@
 <?php
-session_start();
-require_once "../config/database.php";
+require_once __DIR__ . '/../includes/init.php';
+checkRole('profesor');
 require_once "../lib/rank_helper.php";
 
-if (!isset($_SESSION["rol"]) || $_SESSION["rol"] !== "profesor") {
-    header("Location: ../login.php");
-    exit;
-}
-
-$profesor_id = $_SESSION["id"];
+$profesor_id = userId();
 
 /* ── Get active period ── */
-$stmtConf = $conexion->query("SELECT clave, valor FROM configuraciones")->fetchAll(PDO::FETCH_KEY_PAIR);
-$periodo_activo = $stmtConf['periodo_activo'] ?? '1';
+$periodo_activo = getConfig('periodo_activo') ?? '1';
 
 /* ── Get courses where this profesor is director ── */
 $cursos_dirigidos = $conexion->prepare("
@@ -79,11 +73,33 @@ include "includes/header.php";
                         $materias_curso->execute([$curso['id']]);
                         $materias_curso = $materias_curso->fetchAll(PDO::FETCH_ASSOC);
 
-                        // Calculate ranking for this course
                         $ranking = obtenerRankingCurso($conexion, $curso['id'], $periodo_activo);
                         $ranking_map = [];
                         foreach ($ranking as $i => $r) {
                             $ranking_map[$r['id']] = ['pos' => $i + 1, 'total' => count($ranking)];
+                        }
+
+                        // Eager-load all notas + logros for all students in this course (1 query)
+                        $notas_map_por_est = [];
+                        if (count($estudiantes) > 0) {
+                            $est_ids = array_column($estudiantes, 'id');
+                            $placeholders = implode(',', array_fill(0, count($est_ids), '?'));
+                            $params = array_merge($est_ids, [$periodo_activo]);
+                            $notas_all = $conexion->prepare("
+                                SELECT n.estudiante_id, n.asignatura_id, n.nota, n.profesor_id,
+                                       u.nombre AS profesor_nombre, l.logro
+                                FROM notas n
+                                JOIN usuarios u ON n.profesor_id = u.id
+                                LEFT JOIN logros l ON l.estudiante_id = n.estudiante_id
+                                    AND l.asignatura_id = n.asignatura_id
+                                    AND l.periodo = n.periodo
+                                WHERE n.estudiante_id IN ($placeholders) AND n.periodo = ?
+                            ");
+                            $notas_all->execute($params);
+                            foreach ($notas_all->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                                $eid = $row['estudiante_id'];
+                                $notas_map_por_est[$eid][$row['asignatura_id']] = $row;
+                            }
                         }
                     ?>
                         <div class="accordion-item mb-3" style="border-radius:14px!important;border:1px solid #ece8e0;overflow:hidden;">
@@ -106,21 +122,7 @@ include "includes/header.php";
                                     <?php else: ?>
                                         <div class="accordion" id="accordionEstDir<?= $curso['id'] ?>">
                                             <?php foreach ($estudiantes as $est):
-                                                $notas_est = $conexion->prepare("
-                                                    SELECT n.asignatura_id, n.nota, n.profesor_id, u.nombre AS profesor_nombre,
-                                                           l.logro
-                                                    FROM notas n
-                                                    JOIN usuarios u ON n.profesor_id = u.id
-                                                    LEFT JOIN logros l ON l.estudiante_id = n.estudiante_id
-                                                        AND l.asignatura_id = n.asignatura_id
-                                                        AND l.periodo = n.periodo
-                                                    WHERE n.estudiante_id = ? AND n.periodo = ?
-                                                ");
-                                                $notas_est->execute([$est['id'], $periodo_activo]);
-                                                $notas_map = [];
-                                                foreach ($notas_est->fetchAll(PDO::FETCH_ASSOC) as $row) {
-                                                    $notas_map[$row['asignatura_id']] = $row;
-                                                }
+                                                $notas_map = $notas_map_por_est[$est['id']] ?? [];
                                             ?>
                                                 <div class="accordion-item" style="border-left:3px solid var(--gold);border-radius:0;">
                                                     <h2 class="accordion-header">

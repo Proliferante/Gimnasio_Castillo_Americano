@@ -18,6 +18,8 @@ use App\Base\Session;
 use App\Base\Auth;
 use App\Base\Database;
 
+date_default_timezone_set('America/Bogota');
+
 Session::start();
 
 /**
@@ -66,3 +68,23 @@ function db(): Database
  * Cualquier mod future debe migrar a db().
  */
 $conexion = Database::connection();
+
+/**
+ * Caché de configuraciones en ámbito de request.
+ * Solo consulta la BD la primera vez; reusa el resultado en el mismo request.
+ */
+function getConfig(?string $clave = null): mixed
+{
+    static $cache = null;
+    if ($cache === null) {
+        $rows = db()->fetchAll("SELECT clave, valor FROM configuraciones");
+        $cache = [];
+        foreach ($rows as $row) {
+            $cache[$row['clave']] = $row['valor'];
+        }
+    }
+    if ($clave === null) {
+        return $cache;
+    }
+    return $cache[$clave] ?? null;
+}

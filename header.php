@@ -6,14 +6,9 @@
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/landing.css">
 
     <style>
-        :root {
-            --gca-gold: #c9a24d;
-            --gca-dark: #0f0f0f;
-            --gca-gray: #f5f6f8;
-        }
-
         html, body {
             height: 100%;
         }
@@ -96,30 +91,6 @@
             background: #b8933f;
             color: #000;
         }
-
-        /* HERO */
-        .hero {
-            background:
-                linear-gradient(rgba(15,15,15,.65), rgba(15,15,15,.65)),
-                url('https://images.unsplash.com/photo-1588072432836-e10032774350');
-            background-size: cover;
-            background-position: center;
-            color: #fff;
-            padding: 160px 20px;
-            text-align: center;
-        }
-
-        .hero h1 {
-            font-weight: 800;
-            letter-spacing: 1px;
-        }
-
-        .hero p {
-            max-width: 700px;
-            margin: 20px auto;
-            font-size: 18px;
-            color: #eaeaea;
-        }
     </style>
 </head>
 <body>
@@ -137,7 +108,7 @@
     <div class="container">
         <a class="navbar-brand" href="index.php">
             <img src="assets/img/escudo-gca.png" alt="Gimnasio Castillo Americano">
-            Gimnasio Castillo Americano
+            <span class="brand-text">Gimnasio Castillo Americano</span>
         </a>
 
         <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu">

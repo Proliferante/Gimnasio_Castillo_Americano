@@ -177,7 +177,7 @@ include "includes/header.php";
                                                         <?= (int) $r["nota"] ?>
                                                     </span>
                                                 </td>
-                                                <td style="font-size:12px;color:#999;"><?= date("d/m/Y", strtotime($r["creado_en"])) ?></td>
+                                                <td style="font-size:12px;color:var(--text-muted);"><?= date("d/m/Y", strtotime($r["creado_en"])) ?></td>
                                             </tr>
                                         <?php endforeach; ?>
                                     </tbody>

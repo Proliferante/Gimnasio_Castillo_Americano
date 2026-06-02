@@ -57,37 +57,35 @@ function calcularPromedioGeneralEstudiante($conexion, $estudiante_id, $periodo)
 
 function calcularMejoresPorGrado($conexion, $periodo, $limite = 5)
 {
+    // Single query: get all students with averages grouped by grade, ordered by grade order + rank
     $stmt = $conexion->prepare("
-        SELECT DISTINCT c.grado
-        FROM cursos c
-        JOIN estudiantes e ON e.curso_id = c.id
+        SELECT e.id, e.nombre, c.grado, c.nombre as curso_nombre, c.nivel,
+               ROUND(AVG(n.nota), 1) as promedio
+        FROM estudiantes e
+        JOIN cursos c ON e.curso_id = c.id
         JOIN notas n ON n.estudiante_id = e.id AND n.periodo = ?
+        GROUP BY e.id, c.grado
         ORDER BY FIELD(c.grado,
             'maternal','prejardin','jardin','transicion',
             'primero','segundo','tercero','cuarto','quinto',
-            'sexto','septimo','octavo','noveno','decimo','undecimo')
+            'sexto','septimo','octavo','noveno','decimo','undecimo'),
+            promedio DESC
     ");
     $stmt->execute([$periodo]);
-    $grados = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $resultados = [];
-    foreach ($grados as $grado) {
-        $stmt = $conexion->prepare("
-            SELECT e.id, e.nombre, c.grado, c.nombre as curso_nombre, c.nivel,
-                   ROUND(AVG(n.nota), 1) as promedio
-            FROM estudiantes e
-            JOIN cursos c ON e.curso_id = c.id
-            JOIN notas n ON n.estudiante_id = e.id AND n.periodo = ?
-            WHERE c.grado = ?
-            GROUP BY e.id
-            ORDER BY promedio DESC
-            LIMIT ?
-        ");
-        $stmt->bindValue(1, $periodo, PDO::PARAM_STR);
-        $stmt->bindValue(2, $grado, PDO::PARAM_STR);
-        $stmt->bindValue(3, (int)$limite, PDO::PARAM_INT);
-        $stmt->execute();
-        $resultados[$grado] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $contadores = [];
+    foreach ($rows as $row) {
+        $grado = $row['grado'];
+        if (!isset($contadores[$grado])) {
+            $contadores[$grado] = 0;
+            $resultados[$grado] = [];
+        }
+        if ($contadores[$grado] < $limite) {
+            $resultados[$grado][] = $row;
+            $contadores[$grado]++;
+        }
     }
 
     return $resultados;

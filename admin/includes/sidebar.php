@@ -33,7 +33,7 @@ if ($hora < 12) {
         $num_alertas_admin = (int) $stmtA->fetchColumn();
     } catch (Exception $e) {}
     ?>
-    <a href="alertas.php" style="display:flex;align-items:center;gap:10px;margin:8px 18px 4px;padding:10px 14px;border-radius:10px;text-decoration:none;color:#b0ada6;font-size:13.5px;font-weight:500;transition:all.2s;border:1px solid rgba(212,175,55,0.08);background:rgba(212,175,55,0.03);"
+    <a href="alertas.php" style="display:flex;align-items:center;gap:10px;margin:8px 18px 4px;padding:10px 14px;border-radius:10px;text-decoration:none;color:var(--text-sidebar-muted);font-size:13.5px;font-weight:500;transition:all.2s;border:1px solid rgba(212,175,55,0.08);background:rgba(212,175,55,0.03);"
        onmouseover="this.style.background='rgba(212,175,55,0.08)'" onmouseout="this.style.background='rgba(212,175,55,0.03)'">
         <i class="bi bi-bell" style="font-size:16px;"></i>
         Alertas

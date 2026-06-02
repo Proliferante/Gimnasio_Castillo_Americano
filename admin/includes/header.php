@@ -521,8 +521,8 @@
 
         .btn-outline-gca {
             background: transparent;
-            color: #555;
-            border: 1px solid #ddd;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-input);
             padding: 10px 20px;
             font-weight: 500;
             border-radius: 10px;
@@ -654,12 +654,12 @@
         .empty-state {
             text-align: center;
             padding: 48px 20px;
-            color: #aaa;
+            color: var(--text-muted);
         }
 
         .empty-state i {
             font-size: 48px;
-            color: #ddd;
+            color: var(--text-muted);
             margin-bottom: 12px;
             display: block;
         }
@@ -871,8 +871,14 @@
         .dark-mode .btn-delete { color: #f87171; background: rgba(220,38,38,.08); }
         .dark-mode .btn-delete:hover { color: #fff; background: #dc3545; }
         .dark-mode .admin-avatar { color: var(--text-primary); }
+        .dark-mode .stat-card {
+            background: var(--bg-card);
+            border-color: var(--border-color);
+        }
+        .dark-mode .stat-value { color: var(--text-primary); }
         .dark-mode .empty-state,
         .dark-mode .empty-state i { color: var(--text-muted); }
+        .dark-mode select option { background: var(--bg-surface); color: var(--text-primary); }
         .dark-mode .ts-dropdown {
             background: var(--bg-surface);
             border-color: var(--border-color);

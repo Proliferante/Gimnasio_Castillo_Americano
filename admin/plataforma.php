@@ -1,21 +1,17 @@
 <?php
-session_start();
-require_once "../config/database.php";
+require_once __DIR__ . '/../includes/init.php';
+checkRole('admin');
 require_once "../lib/rank_helper.php";
-
-if (!isset($_SESSION["rol"]) || $_SESSION["rol"] !== "admin") {
-    header("Location: ../login.php");
-    exit;
-}
 
 $mensaje = "";
 $error = "";
 
+$db = db();
+
 /* ── Handle AJAX toggle ── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'toggle') {
     $estado = $_POST['estado'] === 'true' ? '1' : '0';
-    $stmt = $conexion->prepare("UPDATE configuraciones SET valor = ? WHERE clave = 'plataforma_activa'");
-    $stmt->execute([$estado]);
+    $conexion->prepare("UPDATE configuraciones SET valor = ? WHERE clave = 'plataforma_activa'")->execute([$estado]);
     echo "ok";
     exit;
 }
@@ -27,63 +23,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar_config'])) {
     $cierre = $_POST['fecha_cierre'] ?? '';
 
     try {
-        $stmt = $conexion->prepare("UPDATE configuraciones SET valor = ? WHERE clave = 'periodo_activo'");
-        $stmt->execute([$periodo]);
-
-        $stmt = $conexion->prepare("UPDATE configuraciones SET valor = ? WHERE clave = 'fecha_apertura'");
-        $stmt->execute([$apertura]);
-
-        $stmt = $conexion->prepare("UPDATE configuraciones SET valor = ? WHERE clave = 'fecha_cierre'");
-        $stmt->execute([$cierre]);
-
+        $db->update('configuraciones', ['valor' => $periodo], "clave = 'periodo_activo'");
+        $db->update('configuraciones', ['valor' => $apertura], "clave = 'fecha_apertura'");
+        $db->update('configuraciones', ['valor' => $cierre], "clave = 'fecha_cierre'");
         $mensaje = "Configuración guardada correctamente.";
     } catch (PDOException $e) {
         $error = "Error al guardar la configuración.";
     }
 }
 
-/* ── Load current config ── */
-$configs = $conexion->query("SELECT clave, valor FROM configuraciones")->fetchAll(PDO::FETCH_KEY_PAIR);
-$plataforma_activa = ($configs['plataforma_activa'] ?? '0') === '1';
-$periodo_activo = $configs['periodo_activo'] ?? '1';
-$fecha_apertura = $configs['fecha_apertura'] ?? '';
-$fecha_cierre = $configs['fecha_cierre'] ?? '';
+/* ── Load current config (cached) ── */
+$plataforma_activa = (getConfig('plataforma_activa') ?? '0') === '1';
+$periodo_activo = getConfig('periodo_activo') ?? '1';
+$fecha_apertura = getConfig('fecha_apertura') ?? '';
+$fecha_cierre = getConfig('fecha_cierre') ?? '';
 
 /* ── Cursos para vista de notas ── */
 $cursos = $conexion->query("
-    SELECT c.*, cu.nivel
-    FROM cursos c
-    LEFT JOIN (SELECT id, nivel FROM cursos) cu ON c.id = cu.id
-    ORDER BY c.nivel, c.grado, c.nombre
+    SELECT * FROM cursos ORDER BY nivel, grado, nombre
 ")->fetchAll(PDO::FETCH_ASSOC);
 
-function obtenerEstudiantes($curso_id) {
-    global $conexion;
-    $stmt = $conexion->prepare("SELECT * FROM estudiantes WHERE curso_id = ? ORDER BY nombre");
-    $stmt->execute([$curso_id]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-function obtenerNotas($estudiante_id) {
-    global $conexion;
+function obtenerNotasEstudiantesCurso($conexion, $curso_id) {
     $stmt = $conexion->prepare("
-        SELECT n.periodo, n.nota, a.nombre as asignatura, a.area, a.id as asignatura_id
+        SELECT n.estudiante_id, n.periodo, n.nota, a.nombre as asignatura, a.area, a.id as asignatura_id
         FROM notas n
         JOIN asignaturas a ON n.asignatura_id = a.id
-        WHERE n.estudiante_id = ?
+        WHERE n.curso_id = ?
         ORDER BY a.area, a.nombre, n.periodo
     ");
-    $stmt->execute([$estudiante_id]);
+    $stmt->execute([$curso_id]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Group by subject and compute averages
-    $materias = [];
-    $total_sum = 0;
-    $total_count = 0;
+    $notas_por_estudiante = [];
     foreach ($rows as $r) {
+        $eid = $r['estudiante_id'];
+        if (!isset($notas_por_estudiante[$eid])) {
+            $notas_por_estudiante[$eid] = [];
+        }
         $key = $r['asignatura_id'] . '_' . $r['asignatura'];
-        if (!isset($materias[$key])) {
-            $materias[$key] = [
+        if (!isset($notas_por_estudiante[$eid][$key])) {
+            $notas_por_estudiante[$eid][$key] = [
                 'area' => $r['area'],
                 'asignatura' => $r['asignatura'],
                 'periodos' => [],
@@ -91,19 +70,27 @@ function obtenerNotas($estudiante_id) {
                 'count' => 0,
             ];
         }
-        $materias[$key]['periodos'][$r['periodo']] = $r['nota'];
-        $materias[$key]['sum'] += $r['nota'];
-        $materias[$key]['count']++;
-        $total_sum += $r['nota'];
-        $total_count++;
+        $notas_por_estudiante[$eid][$key]['periodos'][$r['periodo']] = $r['nota'];
+        $notas_por_estudiante[$eid][$key]['sum'] += $r['nota'];
+        $notas_por_estudiante[$eid][$key]['count']++;
     }
-    foreach ($materias as &$m) {
-        $m['promedio'] = $m['count'] > 0 ? round($m['sum'] / $m['count'], 1) : null;
-    }
-    unset($m);
-    $promedio_general = $total_count > 0 ? round($total_sum / $total_count, 1) : null;
 
-    return ['materias' => $materias, 'promedio_general' => $promedio_general];
+    $resultado = [];
+    foreach ($notas_por_estudiante as $eid => $materias) {
+        $total_sum = 0;
+        $total_count = 0;
+        foreach ($materias as &$m) {
+            $m['promedio'] = $m['count'] > 0 ? round($m['sum'] / $m['count'], 1) : null;
+            $total_sum += $m['sum'];
+            $total_count += $m['count'];
+        }
+        unset($m);
+        $resultado[$eid] = [
+            'materias' => $materias,
+            'promedio_general' => $total_count > 0 ? round($total_sum / $total_count, 1) : null,
+        ];
+    }
+    return $resultado;
 }
 
 $pageTitle = "Configuración de Plataforma";
@@ -223,12 +210,15 @@ include "includes/header.php";
                         <?php else: ?>
                             <div class="accordion mt-3" id="accordionCursos">
                                 <?php foreach ($cursos as $curso):
-                                    $estudiantes = obtenerEstudiantes($curso['id']);
+                                    $stmt = $conexion->prepare("SELECT * FROM estudiantes WHERE curso_id = ? ORDER BY nombre");
+                                    $stmt->execute([$curso['id']]);
+                                    $estudiantes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     $ranking = obtenerRankingCurso($conexion, $curso['id'], $periodo_activo);
                                     $ranking_map = [];
                                     foreach ($ranking as $i => $r) {
                                         $ranking_map[$r['id']] = ['pos' => $i + 1, 'total' => count($ranking)];
                                     }
+                                    $notas_curso = count($estudiantes) > 0 ? obtenerNotasEstudiantesCurso($conexion, $curso['id']) : [];
                                 ?>
                                     <div class="accordion-item" style="border-radius:12px!important;margin-bottom:10px;border:1px solid #ece8e0;overflow:hidden;">
                                         <h2 class="accordion-header">
@@ -245,7 +235,9 @@ include "includes/header.php";
                                                 <?php if (count($estudiantes) > 0): ?>
                                                     <div class="accordion student-accordion" id="accordionEstudiantes<?= $curso['id'] ?>">
                                                         <?php foreach ($estudiantes as $estudiante):
-                                                            $notas = obtenerNotas($estudiante['id']);
+                                                            $notasData = $notas_curso[$estudiante['id']] ?? ['materias' => [], 'promedio_general' => null];
+                                                            $materias = $notasData['materias'];
+                                                            $promedio_gral = $notasData['promedio_general'];
                                                         ?>
                                                             <div class="accordion-item" style="border-left:3px solid var(--gold);border-radius:0;">
                                                                 <h2 class="accordion-header">
@@ -264,11 +256,6 @@ include "includes/header.php";
                                                                 <div id="collapseEst<?= $estudiante['id'] ?>" class="accordion-collapse collapse"
                                                                     data-bs-parent="#accordionEstudiantes<?= $curso['id'] ?>">
                                                                     <div class="accordion-body p-0">
-                                                                        <?php
-                                                                        $notasData = obtenerNotas($estudiante['id']);
-                                                                        $materias = $notasData['materias'];
-                                                                        $promedio_gral = $notasData['promedio_general'];
-                                                                        ?>
                                                                         <?php if (count($materias) > 0): ?>
                                                                             <div class="table-responsive">
                                                                                 <table class="table gca-table mb-0" style="font-size:12px;">

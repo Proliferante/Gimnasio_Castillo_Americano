@@ -17,14 +17,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['marcar_leida'])) {
     exit;
 }
 
-$alertas = $conexion->query("
+$stmt = $conexion->prepare("
     SELECT a.*, 
            CASE WHEN a.para_usuario_id IS NOT NULL THEN u.nombre ELSE NULL END AS usuario_nombre
     FROM alertas a
     LEFT JOIN usuarios u ON a.para_usuario_id = u.id
-    WHERE a.para_rol = 'admin' OR a.para_usuario_id = $usuario_id
+    WHERE a.para_rol = 'admin' OR a.para_usuario_id = ?
     ORDER BY a.created_at DESC
-")->fetchAll(PDO::FETCH_ASSOC);
+");
+$stmt->execute([$usuario_id]);
+$alertas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $pageTitle = "Alertas del Sistema";
 include "includes/header.php";

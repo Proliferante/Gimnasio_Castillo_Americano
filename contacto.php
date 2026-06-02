@@ -193,7 +193,6 @@ include "header.php";
     margin: 0 auto;
 }
 
-/* Contact info cards */
 .contact-card {
     display: flex;
     align-items: flex-start;
@@ -235,7 +234,6 @@ include "header.php";
     line-height: 1.5;
 }
 
-/* Social circles */
 .social-circle {
     width: 38px;
     height: 38px;
@@ -255,7 +253,6 @@ include "header.php";
     transform: scale(1.08);
 }
 
-/* Form card */
 .form-card {
     background: #fff;
     border-radius: 16px;

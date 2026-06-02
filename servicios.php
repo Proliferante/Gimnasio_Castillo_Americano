@@ -1,72 +1,13 @@
 <?php include "header.php"; ?>
 
 <style>
-:root {
-    --gca-gold: #c9a24d;
-    --gca-dark: #0f0f0f;
-}
-
-/* HERO */
 .hero-servicios {
     background:
         linear-gradient(rgba(15,15,15,.7), rgba(15,15,15,.7)),
         url("assets/img/img6.png");
     background-size: cover;
     background-position: center;
-    padding: 140px 20px;
     color: #fff;
-}
-
-/* TÍTULOS */
-.section-title {
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.gold-line {
-    width: 90px;
-    height: 4px;
-    background: var(--gca-gold);
-    margin: 18px auto 40px;
-    border-radius: 10px;
-}
-
-/* CARDS */
-.course-card {
-    background: #fff;
-    border-radius: 22px;
-    padding: 45px 30px;
-    height: 100%;
-    box-shadow: 0 18px 45px rgba(0,0,0,.08);
-    transition: all .35s ease;
-    position: relative;
-}
-
-.course-card::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 6px;
-    background: var(--gca-gold);
-    border-radius: 22px 22px 0 0;
-}
-
-.course-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 28px 65px rgba(0,0,0,.15);
-}
-
-.course-card h4 {
-    font-weight: 800;
-    margin-bottom: 18px;
-}
-
-.course-card p {
-    color: #555;
-    line-height: 1.7;
 }
 </style>
 

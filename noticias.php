@@ -1,11 +1,6 @@
 <?php include "header.php"; ?>
 
 <style>
-    :root {
-        --gca-gold: #c9a24d;
-        --gca-dark: #0f0f0f;
-    }
-
     .news-title {
         font-weight: 800;
         letter-spacing: .5px;
@@ -23,16 +18,6 @@
     .news-card:hover {
         transform: translateY(-6px);
         box-shadow: 0 18px 40px rgba(0,0,0,.15);
-    }
-
-    .news-card img,
-    .news-card video {
-        height: 220px;
-        object-fit: cover;
-    }
-
-    .news-card .card-body {
-        padding: 22px;
     }
 
     .news-card .card-title {

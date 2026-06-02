@@ -1,124 +1,13 @@
 <?php include "header.php"; ?>
 
 <style>
-:root {
-    --gca-gold: #c9a24d;
-    --gca-dark: #0f0f0f;
-    --gca-gray: #f5f6f8;
-}
-
-/* HERO */
 .hero-nosotros {
     background:
         linear-gradient(rgba(15,15,15,.7), rgba(15,15,15,.7)),
         url("assets/img/img5.png");
     background-size: cover;
     background-position: center;
-    padding: 140px 20px;
     color: #fff;
-}
-
-/* TITULOS */
-.section-title {
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.gold-line {
-    width: 90px;
-    height: 4px;
-    background: var(--gca-gold);
-    margin: 20px auto 35px;
-    border-radius: 10px;
-}
-
-/* BLOQUE HISTORIA */
-.history-box {
-    background: #fff;
-    border-radius: 24px;
-    padding: 50px;
-    box-shadow: 0 18px 45px rgba(0,0,0,.08);
-    margin-bottom: 80px;
-}
-
-.history-box p {
-    font-size: 17px;
-    line-height: 1.9;
-    color: #444;
-}
-
-/* CARDS */
-.institution-card {
-    border: none;
-    border-radius: 22px;
-    padding: 45px 30px;
-    height: 100%;
-    background: #fff;
-    box-shadow: 0 15px 40px rgba(0,0,0,.1);
-    transition: all .35s ease;
-    position: relative;
-}
-
-.institution-card::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 6px;
-    background: var(--gca-gold);
-    border-radius: 22px 22px 0 0;
-}
-
-.institution-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 25px 60px rgba(0,0,0,.15);
-}
-
-.institution-card h4 {
-    font-weight: 800;
-    margin-bottom: 20px;
-}
-
-.institution-card p {
-    font-size: 16px;
-    color: #555;
-    line-height: 1.7;
-}
-
-/* BLOQUE COMPROMISO */
-.commitment {
-    background: linear-gradient(rgba(15,15,15,.9), rgba(15,15,15,.9)),
-                url("assets/img/colegio.png");
-    background-size: cover;
-    background-position: center;
-    border-radius: 30px;
-    padding: 80px 40px;
-    color: #fff;
-    margin-top: 90px;
-}
-
-.commitment p {
-    max-width: 850px;
-    margin: 25px auto;
-    font-size: 18px;
-    color: #ddd;
-}
-
-/* BOTÓN */
-.btn-gca {
-    background: var(--gca-gold);
-    color: #000;
-    border-radius: 40px;
-    padding: 12px 40px;
-    font-weight: 700;
-    border: none;
-}
-
-.btn-gca:hover {
-    background: #b8933f;
-    color: #000;
 }
 </style>
 

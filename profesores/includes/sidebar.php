@@ -5,9 +5,8 @@ if ($hora < 12) $saludo = "Buenos días";
 elseif ($hora < 18) $saludo = "Buenas tardes";
 else $saludo = "Buenas noches";
 
-// Periodo activo from DB
-$stmtPer = $conexion->query("SELECT valor FROM configuraciones WHERE clave = 'periodo_activo'");
-$periodo_sidebar = $stmtPer ? $stmtPer->fetchColumn() : '1';
+// Periodo activo from cached config
+$periodo_sidebar = getConfig('periodo_activo') ?? '1';
 
 $currentFile = basename($_SERVER["PHP_SELF"]);
 $isActive = fn($file) => $currentFile === $file ? 'active' : '';
@@ -47,7 +46,7 @@ $isActive = fn($file) => $currentFile === $file ? 'active' : '';
         $num_alertas_prof = (int) $stmtA->fetchColumn();
     } catch (Exception $e) {}
     ?>
-    <a href="alertas.php" style="display:flex;align-items:center;gap:10px;margin:4px 18px 8px;padding:9px 14px;border-radius:10px;text-decoration:none;color:#b0ada6;font-size:13px;font-weight:500;transition:all.2s;border:1px solid rgba(212,175,55,0.08);background:rgba(212,175,55,0.03);"
+    <a href="alertas.php" style="display:flex;align-items:center;gap:10px;margin:4px 18px 8px;padding:9px 14px;border-radius:10px;text-decoration:none;color:var(--text-sidebar-muted);font-size:13px;font-weight:500;transition:all.2s;border:1px solid rgba(212,175,55,0.08);background:rgba(212,175,55,0.03);"
        onmouseover="this.style.background='rgba(212,175,55,0.08)'" onmouseout="this.style.background='rgba(212,175,55,0.03)'">
         <i class="bi bi-bell" style="font-size:15px;"></i>
         Notificaciones

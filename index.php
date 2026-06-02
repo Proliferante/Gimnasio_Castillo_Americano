@@ -3,7 +3,6 @@
 <!-- HERO PRINCIPAL -->
 <section class="hero d-flex align-items-center text-center"
          style="
-            min-height:90vh;
             background:
                 linear-gradient(rgba(8,10,20,.70), rgba(8,10,20,.70)),
                 url('https://images.unsplash.com/photo-1588072432836-e10032774350');
@@ -28,13 +27,7 @@
         </p>
 
         <a href="login.php"
-           class="btn btn-lg px-5 py-3"
-           style="
-                background:#c9a24d;
-                color:#000;
-                font-weight:600;
-                border-radius:40px;
-           ">
+           class="btn btn-lg px-5 py-3 btn-gca">
             Acceso al Sistema Académico
         </a>
 
@@ -150,13 +143,7 @@
         </p>
 
         <a href="login.php"
-           class="btn btn-lg px-5 py-3"
-           style="
-                background:#c9a24d;
-                color:#000;
-                font-weight:600;
-                border-radius:40px;
-           ">
+           class="btn btn-lg px-5 py-3 btn-gca">
             Ingresar al Sistema
         </a>
 
